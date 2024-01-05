@@ -14,7 +14,7 @@ import (
 
 // IsAutoStarted checks if the app is set to auto start at login.
 func (app *App) IsAutoStarted() bool {
-	autoStartFile := filepath.Join(os.ExpandEnv("$HOME/.config/autostart"), app.UniqueID()+".desktop")
+	autoStartFile := filepath.Join(os.ExpandEnv("$HOME/.config/autostart"), app.Metadata().Name+".desktop")
 	if _, err := os.Stat(autoStartFile); err == nil {
 		return true
 	}
@@ -28,7 +28,7 @@ func (app *App) InstallAutoStart() error {
 		return fmt.Errorf("The desktop file for %s was not found", app.UniqueID())
 	}
 
-	autoStartFile := filepath.Join(os.ExpandEnv("$HOME/.config/autostart"), app.UniqueID()+".desktop")
+	autoStartFile := filepath.Join(os.ExpandEnv("$HOME/.config/autostart"), app.Metadata().Name+".desktop")
 
 	autoStartDir := os.ExpandEnv("$HOME/.config/autostart")
 	if _, err := os.Stat(autoStartDir); os.IsNotExist(err) {
@@ -40,7 +40,7 @@ func (app *App) InstallAutoStart() error {
 
 // UninstallAutoStart uninstalls the app from auto start at login.
 func (app *App) UninstallAutoStart() error {
-	autoStartFile := filepath.Join(os.ExpandEnv("$HOME/.config/autostart"), app.UniqueID()+".desktop")
+	autoStartFile := filepath.Join(os.ExpandEnv("$HOME/.config/autostart"), app.Metadata().Name+".desktop")
 	return os.Remove(autoStartFile)
 }
 
@@ -101,11 +101,11 @@ func getGnomeFontSize() float32 {
 
 // findDesktopFile finds the desktop file for the app.
 func findDesktopFile(app *App) string {
-	userfile := filepath.Join(os.ExpandEnv("$HOME/.local/share/applications"), app.UniqueID()+".desktop")
+	userfile := filepath.Join(os.ExpandEnv("$HOME/.local/share/applications"), app.Metadata().Name+".desktop")
 	if _, err := os.Stat(userfile); err == nil {
 		return userfile
 	}
-	systemfile := filepath.Join("/usr/share/applications", app.UniqueID()+".desktop")
+	systemfile := filepath.Join("/usr/share/applications", app.Metadata().Name+".desktop")
 	if _, err := os.Stat(systemfile); err == nil {
 		return systemfile
 	}
