@@ -23,7 +23,21 @@ var models = []string{
 	"bigscience/bloom-560m",
 }
 
-func Settings(options *petalsserver.RunOptions, onchange func()) fyne.CanvasObject {
+func Settings(options *petalsserver.RunOptions, onchange func(), setAtLogin func(), getAtStartup func() bool) fyne.CanvasObject {
+	// install flowerpot at login
+	getLabel := func() string {
+		atlogin := "Start Flowerpot at login"
+		if getAtStartup() {
+			atlogin = "Do not start Flowerpot at login"
+		}
+		return atlogin
+	}
+	var installAtLogin *widget.Button
+	installAtLogin = widget.NewButton(getLabel(), func() {
+		setAtLogin()
+		installAtLogin.SetText(getLabel())
+	})
+
 	nameEntry := widget.NewEntry()
 	nameEntry.SetText(options.PublicName)
 	atStartup := widget.NewCheck("", func(value bool) {
@@ -84,6 +98,7 @@ func Settings(options *petalsserver.RunOptions, onchange func()) fyne.CanvasObje
 		//)),
 		widget.NewFormItem("Stop on process", processList),
 		widget.NewFormItem("Launch at startup", atStartup),
+		widget.NewFormItem("Click to launch Flowerpot at desktop login", installAtLogin),
 	)
 
 	form.OnSubmit = func() {

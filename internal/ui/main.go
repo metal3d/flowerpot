@@ -76,40 +76,32 @@ func (a *App) MainView() {
 		),
 	))
 
-	IsAutoStarted := a.IsAutoStarted()
-	var onLoginButton *widget.Button
-
-	if IsAutoStarted {
-		onLoginButton = widget.NewButton("Disable autostart", func() {
-			if err := a.UninstallAutoStart(); err != nil {
-				dialog.ShowError(err, a.Window)
-				return
-			}
-			onLoginButton.SetText("Enable autostart")
-		})
-	} else {
-		onLoginButton = widget.NewButton("Enable autostart", func() {
-			if err := a.InstallAutoStart(); err != nil {
-				dialog.ShowError(err, a.Window)
-				return
-			}
-			onLoginButton.SetText("Disable autostart")
-		})
-	}
-
 	tabs.Append(container.NewTabItemWithIcon(
 		"Settings",
 		settingsicon,
-		container.NewBorder(
-			nil, onLoginButton,
-			nil, nil,
-			components.Settings(
-				a.Options,
-				func() {
-					a.Save()
-				},
-			)),
-	))
+		components.Settings(
+			a.Options,
+			func() { // onchange callback
+				a.Save()
+			},
+			func() { // set at login button callback
+				isAutoStarted := a.IsAutoStarted()
+				if isAutoStarted {
+					if err := a.UninstallAutoStart(); err != nil {
+						dialog.ShowError(err, a.Window)
+						return
+					}
+				} else {
+					if err := a.InstallAutoStart(); err != nil {
+						dialog.ShowError(err, a.Window)
+						return
+					}
+				}
+			},
+			a.IsAutoStarted, // the function to check if the app is auto started
+		),
+	),
+	)
 
 	// make the version string
 	version := fmt.Sprintf("%s-%d", a.Metadata().Version, a.Metadata().Build)
