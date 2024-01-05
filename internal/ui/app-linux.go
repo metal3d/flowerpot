@@ -25,7 +25,7 @@ func (app *App) IsAutoStarted() bool {
 func (app *App) InstallAutoStart() error {
 	desktopFile := findDesktopFile(app)
 	if desktopFile == "" {
-		return fmt.Errorf("The desktop file for %s was not found", app.UniqueID())
+		return fmt.Errorf("The desktop file for %s was not found", app.Metadata().Name)
 	}
 
 	autoStartFile := filepath.Join(os.ExpandEnv("$HOME/.config/autostart"), app.Metadata().Name+".desktop")
