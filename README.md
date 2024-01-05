@@ -29,7 +29,7 @@ Now, Petals lets you divide models into "blocks" and have several computers, inc
 The easiest method is to follow the "auto install" script. Open a terminal and type:
 
 ```bash
-curl -sL https://github.com/metal3d/flowerpot/install.sh | bash
+curl -sL https://raw.githubusercontent.com/metal3d/flowerpot/main/install.sh | bash
 ```
 
 This will:
