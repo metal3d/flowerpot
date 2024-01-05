@@ -1,0 +1,5 @@
+flowerpot
+*.gz
+*.bz2
+*.xz
+*.lzma

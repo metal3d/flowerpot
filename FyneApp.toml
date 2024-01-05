@@ -1,0 +1,8 @@
+Website = "https://github.com/metal3d/flowerpot"
+
+[Details]
+  Icon = "Icon.png"
+  Name = "FlowerPot"
+  ID = "com.github.metal3d.flowerpot"
+  Version = "0.0.1"
+  Build = 1
