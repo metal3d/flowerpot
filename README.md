@@ -22,6 +22,11 @@ Now, Petals lets you divide models into "blocks" and have several computers, inc
 
 > FlowerPot is simply an interface that makes it easy to set up and automatically start this service. That's all there is to it.
 
+
+There is also a systray icon that can be used to start and stop the service. Green icon means that the server is not running, red icon means that the server is running.
+
+> **BE SURE to have an application icon extension activated in GNOME, like [AppIconIndicator](https://extensions.gnome.org/extension/615/appindicator-support/) for example**, or you will not see the systray icon. It is **highly recommended** to activate such extension. (Gnome developpers, pleas make it default...)
+
 ## Install
 
 ### Linux
@@ -44,6 +49,24 @@ Then, you can launch FlowerPot interface.
 It will then install petals server (Python project). That's all. You can then press the "Start button".
 
 > Go to the settings to make it start at login. And check "auto start" to make it start as soon as possible.
+
+> You may also get the release from [The release page](https://github.com/metal3d/flowerpot/releases), download the package, unpack and launch `make user-install` (recommended).
+
+**To uninstall:**
+
+
+This may help:
+
+```bash
+curl -sL https://raw.githubusercontent.com/metal3d/flowerpot/main/uninstall.sh | bash
+```
+
+Then, You can remove:
+
+- `~/.config/fyne/com.github.metal3d.flowerpot` directory to drop the stored configuration
+- `~/.local/share/petals-server` to remove petals
+- `~/.cache/petals` directory to drop all model (heavy)
+
 
 ### Windows / Mac
 
