@@ -170,9 +170,11 @@ func createStopStartButton(a *App, terminal *components.TerminalOutput, dropCach
 		func() {
 			switch a.started {
 			case true:
+				a.manuallyStopped = true
 				a.StopServer()
 				setStart()
 			case false:
+				a.manuallyStopped = false
 				a.StartServer()
 				setStop()
 			}
