@@ -25,7 +25,7 @@ Now, Petals lets you divide models into "blocks" and have several computers, inc
 
 There is also a systray icon that can be used to start and stop the service. Green icon means that the server is not running, red icon means that the server is running.
 
-> **BE SURE to have an application icon extension activated in GNOME, like [AppIconIndicator](https://extensions.gnome.org/extension/615/appindicator-support/) for example**, or you will not see the systray icon. It is **highly recommended** to activate such extension. (Gnome developpers, pleas make it default...)
+> **BE SURE to have an application icon extension activated in GNOME, like [AppIconIndicator](https://extensions.gnome.org/extension/615/appindicator-support/) for example**, or you will not see the systray icon. It is **highly recommended** to activate such extension. (Gnome developpers, please make it default...)
 
 ## Install
 
@@ -77,7 +77,7 @@ At this time, we do not support these them, but it's in progress. We need help..
 
 FlowerPot is developped with "Go" and the fantastic [Fyne.io](https://fyne.io) library to make the graphical interface. It doesn't use any web renderer, it's cross-platform and native. We decided to use Go to ease the installation and avoid dependencies.
 
-We could, of course, use Python with Gnome / Adwaita libraries, Tkinter, or even Qt. The fact is that is would make it a bit more complex to install it on Windows. As we want to make it work on these platforms too, Go + Fyne is way simpler. We built, you install. Nothing more.
+We could, of course, use Python with Gnome / Adwaita libraries, Tkinter, or even Qt. The fact is that it would make it a bit more complex to install it on Windows. As we want to make it work on these platforms too, Go + Fyne is way simpler. We built, you install. Nothing more.
 
 ## Help wanted
 
