@@ -2,7 +2,6 @@ package ui
 
 import (
 	_ "embed"
-	"fmt"
 	"log"
 	"regexp"
 	"strings"
@@ -24,6 +23,13 @@ var aboutContent string
 func (app *App) MainView() {
 	app.Window.Show()
 	app.SetupSystray()
+	app.checkLatestVersion()
+	go func() {
+		for {
+			time.Sleep(12 * time.Hour)
+			app.checkLatestVersion()
+		}
+	}()
 
 	tabs := container.NewAppTabs()
 
@@ -106,8 +112,7 @@ func (app *App) MainView() {
 	)
 
 	// make the version string
-	version := fmt.Sprintf("%s-%d", app.Metadata().Version, app.Metadata().Build)
-	aboutContent = strings.ReplaceAll(aboutContent, "{{version}}", version)
+	aboutContent = strings.ReplaceAll(aboutContent, "{{version}}", app.getVersion())
 
 	rt := widget.NewRichTextFromMarkdown(aboutContent)
 	rt.Wrapping = fyne.TextWrapWord
