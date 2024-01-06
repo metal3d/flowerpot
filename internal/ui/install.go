@@ -77,6 +77,10 @@ func (a *App) InstallView() {
 	outscroll := container.NewVScroll(output)
 	output.Wrapping = fyne.TextWrapWord
 
+	nextbutton := widget.NewButtonWithIcon("Next", theme.NavigateNextIcon(), func() {
+		a.MainView()
+	})
+
 	box := container.NewBorder(
 		label,
 		progress,
@@ -97,6 +101,14 @@ func (a *App) InstallView() {
 			outscroll.ScrollToBottom()
 		}
 		progress.Stop()
+		box = container.NewBorder(
+			label,
+			nextbutton,
+			nil,
+			nil,
+			outscroll,
+		)
+		a.Window.SetContent(box)
 	}()
 }
 
