@@ -11,7 +11,6 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/driver/desktop"
 	"github.com/metal3d/flowerpot/internal/petalsserver"
 )
 
@@ -95,40 +94,16 @@ func NewApp(id string) *App {
 	// hide by default
 	app.Window.Hide()
 
-	// the systray icon is not shown by default
-	app.menu = fyne.NewMenu("File",
-		fyne.NewMenuItem("...", func() {}), // will be replaced by the start/stop menu entry with SetMenuEntry
-		fyne.NewMenuItem(
-			"Show interface",
-			func() {
-				app.Window.Show()
-			}),
-		fyne.NewMenuItemSeparator(),
-		fyne.NewMenuItem(
-			"Quit",
-			func() {
-				app.Quit()
-			},
-		),
-	)
-	if desk, ok := app.App.(desktop.App); ok {
-		desk.SetSystemTrayMenu(app.menu)
-	}
-
-	app.SetMenuEntry("Start", func() {
-		app.StartServer()
-	})
-
 	return app
 
 }
 
 // Run the application
-func (a *App) Run() {
+func (app *App) Run() {
 	// check if petals server is installed, if not, show the presentation view
 	if !petalsserver.IsPetalsServerInstalled() {
-		a.PresentationView()
-		a.App.Run()
+		app.PresentationView()
+		app.App.Run()
 		return
 	}
 
@@ -141,68 +116,68 @@ func (a *App) Run() {
 		if err != nil {
 			log.Println("Error getting git version: ", err)
 		} else if thisVersion != gitVersion {
-			a.UpdateView()
-			a.App.Run()
+			app.UpdateView()
+			app.App.Run()
 			return
 		}
 	}
 
 	// normal startup
-	a.ServerLoop()
-	a.MainView()
-	a.App.Run()
+	app.ServerLoop()
+	app.MainView()
+	app.App.Run()
 }
 
 // Save the preferences.
-func (a *App) Save() error {
-	prefs := a.Preferences()
-	prefs.SetString(SettingPublicName, a.Options.PublicName)
-	prefs.SetInt(SettingMaxDiskSize, a.Options.MaxDiskSize)
-	prefs.SetInt(SettingNumBlocks, a.Options.NumBlocks)
-	prefs.SetBool(SettingAutoStart, a.Options.AutoStart)
-	prefs.SetStringList(SettingStopOnProcess, a.Options.StopOnProcess)
+func (app *App) Save() error {
+	prefs := app.Preferences()
+	prefs.SetString(SettingPublicName, app.Options.PublicName)
+	prefs.SetInt(SettingMaxDiskSize, app.Options.MaxDiskSize)
+	prefs.SetInt(SettingNumBlocks, app.Options.NumBlocks)
+	prefs.SetBool(SettingAutoStart, app.Options.AutoStart)
+	prefs.SetStringList(SettingStopOnProcess, app.Options.StopOnProcess)
 
 	return nil
 }
 
-func (a *App) Quit() {
-	a.StopServer()
-	a.App.Quit()
+func (app *App) Quit() {
+	app.StopServer()
+	app.App.Quit()
 }
 
-func (a *App) StartServer() error {
+func (app *App) StartServer() error {
 	var err error
 	var cmd *exec.Cmd
 	outchan := make(chan []byte, 1024)
-	a.cancelServer, cmd, err = petalsserver.LaunchPetalsServer(a.Options, outchan)
+	app.cancelServer, cmd, err = petalsserver.LaunchPetalsServer(app.Options, outchan)
 	if err != nil {
 		return err
 	}
-	a.started = true
-	a.currentCmd = cmd
+	app.started = true
+	app.currentCmd = cmd
 
-	a.SetMenuEntry("Stop", func() {
-		a.StopServer()
+	app.SetMenuEntry("Stop", func() {
+		app.StopServer()
 	})
 
-	if a.onStarted != nil {
-		a.onStarted(outchan, err)
+	if app.onStarted != nil {
+		app.onStarted(outchan, err)
 		return err
 	}
 	return nil
 }
 
-func (a *App) StopServer() {
+func (app *App) StopServer() {
 
-	if a.currentCmd != nil {
+	if app.currentCmd != nil {
 		log.Println("Stopping server")
-		a.currentCmd.Process.Signal(os.Interrupt)
+		app.currentCmd.Process.Signal(os.Interrupt)
 	}
 
-	if a.cancelServer != nil {
-		a.cancelServer()
+	if app.cancelServer != nil {
+		app.cancelServer()
 		// wait for the process to exit
-		if err := a.currentCmd.Wait(); err != nil {
+		if err := app.currentCmd.Wait(); err != nil {
 			log.Printf("Process finished with error: %v", err)
 		}
 	} else {
@@ -214,25 +189,25 @@ func (a *App) StopServer() {
 		defer petalsserver.ForceKill() // TODO: avoid this
 		log.Println("server still running, force kill")
 	}
-	a.started = false
-	*a.peerID = ""
-	a.SetMenuEntry("Start", func() {
-		a.StartServer()
+	app.started = false
+	*app.peerID = ""
+	app.SetMenuEntry("Start", func() {
+		app.StartServer()
 	})
-	if a.onStopped != nil {
-		a.onStopped()
+	if app.onStopped != nil {
+		app.onStopped()
 	}
 }
 
-func (a *App) StartIfNeeded() {
-	if a.started {
+func (app *App) StartIfNeeded() {
+	if app.started {
 		log.Println("server already started")
 		return
 	}
 
 	// the server should start if the auto start option is enabled
 	// and if the user did not manually stop the server
-	if !a.Options.AutoStart || a.manuallyStopped {
+	if !app.Options.AutoStart || app.manuallyStopped {
 		log.Println("auto start disabled")
 		return
 	}
@@ -243,16 +218,16 @@ func (a *App) StartIfNeeded() {
 		return
 	}
 
-	if ok, reason := canStart(a.Options); !ok {
+	if ok, reason := canStart(app.Options); !ok {
 		log.Println("server should not start because: ", reason)
 		return
 	}
 
-	a.StartServer()
+	app.StartServer()
 }
 
-func (a *App) StopServerIfNeeded() {
-	if !a.started {
+func (app *App) StopServerIfNeeded() {
+	if !app.started {
 		return
 	}
 
@@ -260,20 +235,20 @@ func (a *App) StopServerIfNeeded() {
 		return
 	}
 
-	if ok, reason := canStart(a.Options); !ok {
+	if ok, reason := canStart(app.Options); !ok {
 		log.Println("stopping server because: ", reason)
-		a.StopServer()
+		app.StopServer()
 	}
 }
 
-func (a *App) ServerLoop() {
+func (app *App) ServerLoop() {
 	go func() {
 		for {
 			time.Sleep(1 * time.Second)
-			if !a.started {
-				a.StartIfNeeded()
+			if !app.started {
+				app.StartIfNeeded()
 			} else {
-				a.StopServerIfNeeded()
+				app.StopServerIfNeeded()
 			}
 		}
 	}()
@@ -296,23 +271,4 @@ func canStart(options *petalsserver.RunOptions) (bool, string) {
 	}
 
 	return true, "That's OK"
-}
-
-func (a *App) SetMenuEntry(label string, action func()) {
-
-	if desk, ok := a.App.(desktop.App); ok {
-		log.Println("Setting menu entry: ", label)
-		switch label {
-		case "Start":
-			desk.SetSystemTrayIcon(greenIconFile)
-		case "Stop":
-			desk.SetSystemTrayIcon(redIconFile)
-		}
-	}
-
-	a.menu.Items[0] = fyne.NewMenuItem(
-		label,
-		action,
-	)
-	a.menu.Refresh()
 }

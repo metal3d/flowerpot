@@ -21,8 +21,10 @@ import (
 //go:embed about.md
 var aboutContent string
 
-func (a *App) MainView() {
-	a.Window.Show()
+func (app *App) MainView() {
+	app.Window.Show()
+	app.SetupSystray()
+
 	tabs := container.NewAppTabs()
 
 	logsicon := theme.ListIcon()
@@ -30,11 +32,11 @@ func (a *App) MainView() {
 	healthicon := theme.HelpIcon()
 
 	// the terminal output
-	terminal := createTerminalOutput(a)
+	terminal := createTerminalOutput(app)
 	// drop cache button
-	dropCacheButton := createDropCacheButton(a)
+	dropCacheButton := createDropCacheButton(app)
 	// start/stop button
-	startStopButton := createStopStartButton(a, terminal, dropCacheButton)
+	startStopButton := createStopStartButton(app, terminal, dropCacheButton)
 
 	status, err := petalsserver.GetStatus()
 	if err != nil {
@@ -68,11 +70,11 @@ func (a *App) MainView() {
 			func() {
 				log.Println("Problem detected, restarting server")
 				terminal.SetText("Problem detected, restarting server in 10 seconds\n")
-				a.StopServer()
+				app.StopServer()
 				time.Sleep(10 * time.Second)
-				a.StartServer()
+				app.StartServer()
 			},
-			a.peerID,
+			app.peerID,
 		),
 	))
 
@@ -80,31 +82,31 @@ func (a *App) MainView() {
 		"Settings",
 		settingsicon,
 		components.Settings(
-			a.Options,
+			app.Options,
 			func() { // onchange callback
-				a.Save()
+				app.Save()
 			},
 			func() { // set at login button callback
-				isAutoStarted := a.IsAutoStarted()
+				isAutoStarted := app.IsAutoStarted()
 				if isAutoStarted {
-					if err := a.UninstallAutoStart(); err != nil {
-						dialog.ShowError(err, a.Window)
+					if err := app.UninstallAutoStart(); err != nil {
+						dialog.ShowError(err, app.Window)
 						return
 					}
 				} else {
-					if err := a.InstallAutoStart(); err != nil {
-						dialog.ShowError(err, a.Window)
+					if err := app.InstallAutoStart(); err != nil {
+						dialog.ShowError(err, app.Window)
 						return
 					}
 				}
 			},
-			a.IsAutoStarted, // the function to check if the app is auto started
+			app.IsAutoStarted, // the function to check if the app is auto started
 		),
 	),
 	)
 
 	// make the version string
-	version := fmt.Sprintf("%s-%d", a.Metadata().Version, a.Metadata().Build)
+	version := fmt.Sprintf("%s-%d", app.Metadata().Version, app.Metadata().Build)
 	aboutContent = strings.ReplaceAll(aboutContent, "{{version}}", version)
 
 	rt := widget.NewRichTextFromMarkdown(aboutContent)
@@ -115,7 +117,7 @@ func (a *App) MainView() {
 		container.NewVScroll(rt),
 	))
 
-	a.Window.SetContent(tabs)
+	app.Window.SetContent(tabs)
 }
 
 func createTerminalOutput(a *App) *components.TerminalOutput {
