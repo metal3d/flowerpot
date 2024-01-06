@@ -10,16 +10,17 @@ import (
 
 type TerminalOutput struct {
 	widget.BaseWidget
-	logChan  chan []byte
-	label    *widget.Label
-	scroll   *container.Scroll
-	onOutput func()
-	serverID string
+	logChan   chan []byte
+	label     *widget.Label
+	scroll    *container.Scroll
+	onOutput  func()
+	onStopped func()
 }
 
-func NewTerminalOutput(onOutput func()) *TerminalOutput {
+func NewTerminalOutput(onOutput, onStopped func()) *TerminalOutput {
 	t := &TerminalOutput{
-		onOutput: onOutput,
+		onOutput:  onOutput,
+		onStopped: onStopped,
 	}
 
 	t.label = widget.NewLabel("")
@@ -73,7 +74,9 @@ func (t *TerminalOutput) writeLogs(logs chan []byte) {
 		}
 
 	}
-	t.label.SetText("Server stopped")
+	if t.onStopped != nil {
+		t.onStopped()
+	}
 }
 
 func (t *TerminalOutput) CreateRenderer() fyne.WidgetRenderer {

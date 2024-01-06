@@ -148,6 +148,9 @@ func createTerminalOutput(a *App) *components.TerminalOutput {
 				}
 			}
 		},
+		func() { // on stopped
+			terminal.SetText("Server stopped\n")
+		},
 	)
 	return terminal
 }

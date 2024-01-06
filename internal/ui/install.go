@@ -16,6 +16,7 @@ import (
 	"fyne.io/fyne/v2/widget"
 	"github.com/coreos/go-semver/semver"
 	"github.com/metal3d/flowerpot/internal/petalsserver"
+	"github.com/metal3d/flowerpot/internal/ui/components"
 )
 
 var (
@@ -71,22 +72,28 @@ func (a *App) InstallView() {
 	label.Alignment = fyne.TextAlignCenter
 	label.TextStyle = fyne.TextStyle{Bold: true}
 
-	output := widget.NewLabel("")
-	output.Importance = widget.HighImportance
-	output.TextStyle = fyne.TextStyle{Monospace: true}
-	outscroll := container.NewVScroll(output)
-	output.Wrapping = fyne.TextWrapWord
-
+	var output *components.TerminalOutput
+	var box *fyne.Container
 	nextbutton := widget.NewButtonWithIcon("Next", theme.NavigateNextIcon(), func() {
 		a.MainView()
 	})
-
-	box := container.NewBorder(
+	output = components.NewTerminalOutput(nil, func() {
+		progress.Stop()
+		box = container.NewBorder(
+			label,
+			nextbutton,
+			nil,
+			nil,
+			output,
+		)
+		a.Window.SetContent(box)
+	})
+	box = container.NewBorder(
 		label,
 		progress,
 		nil,
 		nil,
-		outscroll,
+		output,
 	)
 
 	a.Window.SetContent(box)
@@ -96,19 +103,7 @@ func (a *App) InstallView() {
 		if err != nil {
 			log.Println("error installing petals server:", err)
 		}
-		for line := range out {
-			output.SetText(output.Text + line + "\n")
-			outscroll.ScrollToBottom()
-		}
-		progress.Stop()
-		box = container.NewBorder(
-			label,
-			nextbutton,
-			nil,
-			nil,
-			outscroll,
-		)
-		a.Window.SetContent(box)
+		output.StartLogs(out)
 	}()
 }
 

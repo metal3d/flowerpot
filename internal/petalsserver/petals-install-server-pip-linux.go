@@ -17,7 +17,7 @@ const (
 	packageName = "petals"
 )
 
-func PipInstallPetals(pythonPath string) (chan string, error) {
+func PipInstallPetals(pythonPath string) (chan []byte, error) {
 
 	if err := createVirtualEnv(pythonPath); err != nil {
 		return nil, err
@@ -30,43 +30,44 @@ func PipInstallPetals(pythonPath string) (chan string, error) {
 		gitPackage,
 	)
 
-	outchan := make(chan string)
+	outchan := make(chan []byte, 1024)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		outchan <- err.Error()
+		outchan <- []byte(err.Error() + "\n")
 		defer close(outchan)
 		return outchan, err
 	}
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
-		outchan <- err.Error()
+		outchan <- []byte(err.Error() + "\n")
 		defer close(outchan)
 		return outchan, err
 	}
 
 	if err := cmd.Start(); err != nil {
-		outchan <- err.Error()
+		outchan <- []byte(err.Error() + "\n")
 		defer close(outchan)
 		return outchan, err
 	}
 
 	go func() {
 		scanner := bufio.NewScanner(stdout)
+		scanner.Split(bufio.ScanBytes)
 		for scanner.Scan() {
-			outchan <- scanner.Text()
+			outchan <- scanner.Bytes()
 		}
 	}()
 	go func() {
 		scanner := bufio.NewScanner(stderr)
 		for scanner.Scan() {
-			outchan <- scanner.Text()
+			outchan <- scanner.Bytes()
 		}
 	}()
 	go func() {
 		defer close(outchan)
 		err := cmd.Wait()
 		if err != nil {
-			outchan <- err.Error()
+			outchan <- []byte(err.Error() + "\n")
 		}
 	}()
 
