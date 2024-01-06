@@ -43,10 +43,12 @@ func (app *App) checkLatestVersion() {
 			return
 		}
 	}
-	if release.TagName != app.getVersion() {
+	version := app.getVersion()
+	version = "v" + version
+	if release.TagName != version {
 		dialog.ShowInformation(
 			"New version available",
-			fmt.Sprintf("A new version is available on github: %s", release.TagName),
+			fmt.Sprintf("A new version is available on GitHub: %s", release.TagName),
 			app.Window,
 		)
 	}
