@@ -49,15 +49,12 @@ func (app *App) MainView() {
 		log.Println(err)
 	}
 
-	// gpu load widget
-	gpuLoad := components.NewGPULoad()
-
 	// create tabs and add them to the window
 	tabs.Append(container.NewTabItemWithIcon(
 		"Logs",
 		logsicon,
 		container.NewBorder(
-			gpuLoad,
+			nil,
 			container.NewVBox(
 				startStopButton,
 				dropCacheButton,
@@ -122,7 +119,15 @@ func (app *App) MainView() {
 		container.NewVScroll(rt),
 	))
 
-	app.Window.SetContent(tabs)
+	// gpu load widget
+	gpuLoad := components.NewGPULoad()
+	app.Window.SetContent(container.NewBorder(
+		gpuLoad,
+		nil,
+		nil,
+		nil,
+		tabs,
+	))
 }
 
 func createTerminalOutput(a *App) *components.TerminalOutput {
